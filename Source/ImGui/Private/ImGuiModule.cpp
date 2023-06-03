@@ -10,7 +10,6 @@
 #include "ThirdPartyBuildNetImgui.h"
 
 #if WITH_EDITOR
-#include "ThirdPartyBuildImGui.h"
 #include "Editor/ImGuiEditor.h"
 #endif
 

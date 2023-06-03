@@ -3,7 +3,6 @@
 #include "ImGuiContextProxy.h"
 
 #include "ImGuiDelegatesContainer.h"
-#include "ThirdPartyBuildImGui.h"
 #include "ThirdPartyBuildNetImgui.h"
 #include "ImGuiInteroperability.h"
 #include "Utilities/Arrays.h"
