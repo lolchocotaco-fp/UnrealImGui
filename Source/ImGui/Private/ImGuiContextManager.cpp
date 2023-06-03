@@ -6,6 +6,7 @@
 #include "ThirdPartyBuildImGui.h"
 #include "ThirdPartyBuildNetImgui.h"
 #include "ImGuiModuleSettings.h"
+#include "ImGuiModule.h"
 #include "Utilities/WorldContext.h"
 #include "Utilities/WorldContextIndex.h"
 
@@ -16,6 +17,12 @@
 #include "Fonts/Droid_Sans.cpp"
 #include "Fonts/Karla_Regular.cpp"
 #include "Fonts/Proggy_Tiny.cpp"
+
+// MSVC warnings
+#ifdef _MSC_VER
+#pragma warning (disable: 4996) // 'This function or variable may be unsafe': strcpy, strdup, sprintf, vsnprintf, sscanf, fopen
+#endif
+
 // TODO: Refactor ImGui Context Manager, to handle different types of worlds.
 
 namespace
@@ -261,7 +268,7 @@ void FImGuiContextManager::SetDPIScale(const FImGuiDPIScaleInfo& ScaleInfo)
 	}
 }
 
-void FImGuiContextManager::BuildFontAtlas()
+void FImGuiContextManager::BuildFontAtlas(const TMap<FName, TSharedPtr<ImFontConfig>>& CustomFontConfigs)
 {
 	if (!FontAtlas.IsBuilt())
 	{
@@ -282,6 +289,21 @@ void FImGuiContextManager::BuildFontAtlas()
 		FontAtlas.AddFontFromMemoryCompressedTTF(Proggy_Tiny_compressed_data,		Proggy_Tiny_compressed_size,		10.0f*DPIScale, &FontConfig);
 
 		// ... add extra fonts here (and add extra entry in 'FImguiModule::eFont' enum)
+
+		// Build custom fonts
+		for (const TPair<FName, TSharedPtr<ImFontConfig>>& CustomFontPair : CustomFontConfigs)
+		{
+			FName CustomFontName = CustomFontPair.Key;
+			TSharedPtr<ImFontConfig> CustomFontConfig = CustomFontPair.Value;
+
+			// Set font name for debugging
+			if (CustomFontConfig.IsValid())
+			{
+				strncpy(CustomFontConfig->Name, TCHAR_TO_ANSI(*CustomFontName.ToString()), 40);
+			}
+
+			FontAtlas.AddFont(CustomFontConfig.Get());
+		}
 
 		unsigned char* Pixels;
 		int Width, Height, Bpp;
@@ -304,5 +326,5 @@ void FImGuiContextManager::RebuildFontAtlas()
 		FontResourcesReleaseCountdown = 3;
 	}
 
-	BuildFontAtlas();
+	BuildFontAtlas(FImGuiModule::Get().GetProperties().GetCustomFonts());
 }

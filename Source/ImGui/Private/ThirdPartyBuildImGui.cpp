@@ -1,5 +1,5 @@
 // Distributed under the MIT License (MIT) (see accompanying LICENSE file)
-
+#if 0
 #include "ThirdPartyBuildImGui.h"
 
 #include <CoreMinimal.h>
@@ -7,7 +7,7 @@
 // For convenience and easy access to the ImGui source code, we build it as part of this module.
 // We don't need to define IMGUI_API manually because it is already done for this module.
 
-#if PLATFORM_XBOXONE
+#if defined(PLATFORM_XBOXONE) && PLATFORM_XBOXONE
 // Disable Win32 functions used in ImGui and not supported on XBox.
 #define IMGUI_DISABLE_WIN32_DEFAULT_CLIPBOARD_FUNCTIONS
 #define IMGUI_DISABLE_WIN32_DEFAULT_IME_FUNCTIONS
@@ -30,7 +30,7 @@ struct FImGuiContextHandle : public Utilities::TRedirectingHandle<ImGuiContext*>
 	{
 		if (FImGuiModule* Module = FModuleManager::GetModulePtr<FImGuiModule>("ImGui"))
 		{
-			SetParent(&Module->GetImGuiContextHandle());
+			SetParent(Module->ImGuiContextHandle);
 		}
 	}
 };
@@ -47,6 +47,11 @@ static FImGuiContextHandle ImGuiContextPtrHandle(ImGuiContextPtr);
 #include "imgui_draw.cpp"
 #include "imgui_widgets.cpp"
 #include "imgui_tables.cpp"
+
+#include "imgui_tables.cpp"
+#include "implot.cpp"
+#include "implot_items.cpp"
+#include "implot_demo.cpp"
 
 #if PLATFORM_WINDOWS
 #include <Windows/HideWindowsPlatformTypes.h>
@@ -69,3 +74,4 @@ namespace ImGuiImplementation
 	}
 #endif // WITH_EDITOR
 }
+#endif
