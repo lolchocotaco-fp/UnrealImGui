@@ -9,7 +9,10 @@
 #include <Modules/ModuleManager.h>
 
 #include <imgui.h>
+
+#if NETIMGUI_ENABLED
 #include "NetImgui_Api.h"
+#endif
 
 // High enough z-order guarantees that ImGui output is rendered on top of the game UI.
 constexpr int32 IMGUI_WIDGET_Z_ORDER = 10000;
