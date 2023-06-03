@@ -1,159 +1,270 @@
 #pragma once
 
 //=================================================================================================
-//! @Name		: netImgui
+//! @Name		: NetImgui
 //=================================================================================================
 //! @author		: Sammy Fatnassi
-//! @date		: 2021/02/07
-//!	@version	: v1.3.3
+//! @date		: 2023/05/04
+//!	@version	: v1.9
 //! @Details	: For integration info : https://github.com/sammyfreg/netImgui/wiki
 //=================================================================================================
-#define NETIMGUI_VERSION		"1.3.3"
-#define NETIMGUI_VERSION_NUM	10303
+#define NETIMGUI_VERSION		"1.9"	// Version Release 1.9
+#define NETIMGUI_VERSION_NUM	10900
 
-#include <stdint.h>
 
-#include "Private/NetImgui_WarningDisable.h"
-#include "NetImgui_Config.h"
+
+
+//-------------------------------------------------------------------------------------------------
+// Deactivate a few warnings to allow Imgui header include
+// without generating warnings in maximum level '-Wall'
+//-------------------------------------------------------------------------------------------------
+#if defined (__clang__)
+	#pragma clang diagnostic push
+	// ImGui.h warnings(s)
+	#pragma clang diagnostic ignored "-Wunknown-warning-option"
+	#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
+	#pragma clang diagnostic ignored "-Wreserved-identifier"			// Enum values using '__' or member starting with '_' in imgui.h
+	// NetImgui_Api.h Warning(s)
+	#pragma clang diagnostic ignored "-Wzero-as-null-pointer-constant"	// Not using nullptr in case this file is used in pre C++11
+#elif defined(_MSC_VER) 
+	#pragma warning	(push)
+	// ImGui.h warnings(s)
+	#pragma warning (disable: 4514)		// 'xxx': unreferenced inline function has been removed
+	#pragma warning (disable: 4710)		// 'xxx': function not inlined
+	#pragma warning (disable: 4820)		// 'xxx': 'yyy' bytes padding added after data member 'zzz'	
+	#pragma warning (disable: 5045)		// Compiler will insert Spectre mitigation for memory load if /Qspectre switch specified
+#endif
 
 //=================================================================================================
-// NetImgui needs to detect Dear ImGui to be active
+// Include the user config file. It should contain the include for :
+// 'imgui.h' : always
+// 'imgui_internal.h' when 'NETIMGUI_INTERNAL_INCLUDE' is defined
 //=================================================================================================
-#ifndef NETIMGUI_ENABLED
+#ifdef NETIMGUI_IMPLEMENTATION
+	#define NETIMGUI_INTERNAL_INCLUDE
+	#include "NetImgui_Config.h"
+	#undef NETIMGUI_INTERNAL_INCLUDE
+#else
+	#include "NetImgui_Config.h"
+#endif
+
+
+//-------------------------------------------------------------------------------------------------
+// If 'NETIMGUI_ENABLED' hasn't been defined yet (in project settings or NetImgui_Config.h') 
+// we define this library as 'Disabled'
+//-------------------------------------------------------------------------------------------------
+#if !defined(NETIMGUI_ENABLED)
 	#define NETIMGUI_ENABLED 0
-#elif !defined(IMGUI_VERSION)
+#endif
+
+// NetImgui needs to detect Dear ImGui to be active, otherwise we disable it
+// When including this header, make sure imgui.h is included first 
+// (either always included in NetImgui_config.h or have it included after Imgui.h in your cpp)
+#if !defined(IMGUI_VERSION)
 	#undef	NETIMGUI_ENABLED
 	#define	NETIMGUI_ENABLED 0
 #endif
 
+#if NETIMGUI_ENABLED
+
+#include <stdint.h>
+
+//=================================================================================================
+// Default Build settings defines values
+// Assign default values when not set in user NetImgui_Config.h
+//=================================================================================================
+
+//-------------------------------------------------------------------------------------------------
+// Prepended to functions signature, for dll export/import
+//-------------------------------------------------------------------------------------------------
+#ifndef NETIMGUI_API
+	#define NETIMGUI_API						IMGUI_API						// Use same value as defined by Dear ImGui by default 
+#endif
+
+//-------------------------------------------------------------------------------------------------
+// Enable TCP socket 'reuse port' option when opening it as a 'listener'.
+// Note:	Can help when unable to open a socket because it wasn't properly released after a crash.
+//-------------------------------------------------------------------------------------------------
+#ifndef NETIMGUI_FORCE_TCP_LISTEN_BINDING
+	#define NETIMGUI_FORCE_TCP_LISTEN_BINDING	0								// Doesn't seem to be needed on Window/Linux
+#endif
+
+//-------------------------------------------------------------------------------------------------
+// Enable Dear ImGui Callbacks support for BeginFrame/Render automatic interception.
+// Note:	Avoid having to replace ImGui::BeginFrame/ImGui::Render with in library user code, by
+//			'NetImgui::NewFrame/NetImgui::EndFrame'. But prevent benefit of skipping frame draw 
+//			when unneeded, that 'NetImgui::NewFrame' can provide. 
+//			For more info, consult 'SampleNewFrame.cpp'.
+//			Needs Dear ImGui 1.81+
+//-------------------------------------------------------------------------------------------------
+#ifndef NETIMGUI_IMGUI_CALLBACK_ENABLED
+	#define NETIMGUI_IMGUI_CALLBACK_ENABLED		(IMGUI_VERSION_NUM >= 18100)	// Not supported pre Dear ImGui 1.81
+#endif
+
+
+namespace NetImgui 
+{ 
+
 //=================================================================================================
 // List of texture format supported
 //=================================================================================================
-namespace NetImgui 
-{ 
-enum class eTexFormat : uint8_t { 
+enum eTexFormat { 
 	kTexFmtA8, 
 	kTexFmtRGBA8, 
 	kTexFmt_Count,
-	kTexFmt_Invalid=kTexFmt_Count };
+	kTexFmt_Invalid=kTexFmt_Count 
+};
 
-typedef void		ThreadFunctPtr(void threadedFunction(void* pClientInfo), void* pClientInfo) ;
+//=================================================================================================
+// Data Compression wanted status
+//=================================================================================================
+enum eCompressionMode {
+	kForceDisable,			// Disable data compression for communications
+	kForceEnable,			// Enable data compression for communications
+	kUseServerSetting		// Use Server setting for compression (default)
+};
+
+//-------------------------------------------------------------------------------------------------
+// Thread start function
+//-------------------------------------------------------------------------------------------------
+typedef void ThreadFunctPtr(void threadedFunction(void* pClientInfo), void* pClientInfo);
 
 //=================================================================================================
 // Initialize the Network Library
 //=================================================================================================
-bool				Startup(void);
+NETIMGUI_API	bool				Startup(void);
 
 //=================================================================================================
 // Free Resources
-//-------------------------------------------------------------------------------------------------
-// bWait			: Wait until all communication threads have terminated before returning
+// Wait until all communication threads have terminated before returning
 //=================================================================================================
-void				Shutdown(bool bWait);
+NETIMGUI_API	void				Shutdown();
 
 //=================================================================================================
-// Try to establish a connection to netImguiApp server. 
+// Establish a connection between the NetImgui server application and this client. 
 //
-// Can establish connection with netImgui Server application by either reaching it directly
+// Can connect with NetImgui Server application by either reaching it directly
 // using 'ConnectToApp' or waiting for Server to reach us after Client called 'ConnectFromApp'.
 //
 // Note:	Start a new communication thread using std::Thread by default, but can receive custom 
 //			thread start function instead (Look at ClientExample 'CustomCommunicationThread').
 //-------------------------------------------------------------------------------------------------
-// clientName		: Named that will be displayed on the Server, for this Client
-// serverHost		: Address of the netImgui Server application (Ex1: 127.0.0.2, Ex2: localhost)
-// serverPort		: PortID of the netImgui Server application to connect to
+// clientName		: Client name displayed in the Server's clients list
+// serverHost		: Address of the NetImgui Server application (Ex1: 127.0.0.2, Ex2: localhost)
+// serverPort		: PortID of the NetImgui Server application to connect to
 // clientPort		: PortID this Client should wait for connection from Server application
 // threadFunction	: User provided function to launch new networking thread.
-//					  Use 'DefaultStartCommunicationThread' by default, relying on 'std::thread'.
+//					  Use 'DefaultStartCommunicationThread' by default (relying on 'std::thread').
 //=================================================================================================
-bool				ConnectToApp(const char* clientName, const char* serverHost, uint32_t serverPort=kDefaultServerPort, ThreadFunctPtr threadFunction=nullptr);
-bool				ConnectFromApp(const char* clientName, uint32_t clientPort=kDefaultClientPort, ThreadFunctPtr threadFunction = nullptr);
+NETIMGUI_API	bool				ConnectToApp(const char* clientName, const char* serverHost, uint32_t serverPort=kDefaultServerPort, ThreadFunctPtr threadFunction=0);
+NETIMGUI_API	bool				ConnectFromApp(const char* clientName, uint32_t clientPort=kDefaultClientPort, ThreadFunctPtr threadFunction=0);
 
 //=================================================================================================
-// Request a disconnect from the netImguiApp server
+// Request a disconnect from the NetImguiServer application
 //=================================================================================================
-void				Disconnect(void);
+NETIMGUI_API	void				Disconnect(void);
 
 //=================================================================================================
-// True if connected to netImguiApp server
+// True if connected to the NetImguiServer application
 //=================================================================================================
-bool				IsConnected(void);
+NETIMGUI_API	bool				IsConnected(void);
 
 //=================================================================================================
 // True if connection request is waiting to be completed. For example, while waiting for  
 // Server to reach ud after having called 'ConnectFromApp()'
 //=================================================================================================
-bool				IsConnectionPending(void);
+NETIMGUI_API	bool				IsConnectionPending(void);
 
 //=================================================================================================
 // True when Dear ImGui is currently expecting draw commands 
 // This means that we are between NewFrame() and EndFrame() 
 //=================================================================================================
-bool				IsDrawing(void);
+NETIMGUI_API	bool				IsDrawing(void);
 
 //=================================================================================================
-// True when Dear ImGui is currently expecting draw commands *sent to remote netImgui app*.
-// This means that we are between NewFrame() and EndFrame() of drawing for remote application
+// True when we are currently drawinf on the NetImguiServer application
+// Means that we are between NewFrame() and EndFrame() of drawing for remote application
 //=================================================================================================
-bool				IsDrawingRemote(void);
+NETIMGUI_API	bool				IsDrawingRemote(void);
 
 //=================================================================================================
-// Send an updated texture used by imgui, to netImguiApp server
+// Send an updated texture used by imgui, to the NetImguiServer application
 // Note: To remove a texture, set pData to nullptr
 //=================================================================================================
-void				SendDataTexture(ImTextureID textureId, void* pData, uint16_t width, uint16_t height, eTexFormat format);
+NETIMGUI_API	void				SendDataTexture(ImTextureID textureId, void* pData, uint16_t width, uint16_t height, eTexFormat format);
 
 //=================================================================================================
-// Start a new Imgui Frame and wait for Draws commands, using a ImGui created internally
-// for remote drawing. Returns true if we are awaiting a new ImGui frame. 
+// Start a new Imgui Frame and wait for Draws commands, using ImContext that was active on connect.
+// Returns true if we are awaiting a new ImGui frame. 
 //
-// All ImGui drawing can be skip when false.
+// All ImGui drawing should be skipped when return is false.
 //
 // Note: This code can be used instead, to know if you should be drawing or not :
 //			'if( !NetImgui::IsDrawing() )'
 //
-// Note: If your code cannot handle skipping a ImGui frame, leave 'bSupportFrameSkip==false',
-//		 and an empty ImGui context will be assigned to receive discarded drawing commands
+// Note: If your code cannot handle skipping a ImGui frame, leave 'bSupportFrameSkip=false',
+//		 and this function will always call 'ImGui::NewFrame()' internally and return true
 //
-// Note: With Dear ImGui 1.80+, you can keep using the ImGui::BeginFrame()/Imgui::Render()
-//		 without having to use these 2 functions.
+// Note: With Dear ImGui 1.81+, you can keep using the ImGui::BeginFrame()/Imgui::Render()
+//		 without having to use NetImgui::NewFrame()/NetImgui::EndFrame() 
+//		 (unless wanting to support frame skip)
 //=================================================================================================
-bool				NewFrame(bool bSupportFrameSkip=false);
+NETIMGUI_API	bool				NewFrame(bool bSupportFrameSkip=false);
 
 //=================================================================================================
 // Process all receives draws, send them to remote connection and restore the ImGui Context
 //=================================================================================================
-void				EndFrame(void);
+NETIMGUI_API	void				EndFrame(void);
 
 //=================================================================================================
 // Return the context associated to this remote connection. Null when not connected.
 //=================================================================================================
-ImGuiContext*		GetContext();
+NETIMGUI_API	ImGuiContext*		GetContext();
 
 //=================================================================================================
-// Helper function to quickly create a context duplicate (sames settings/font/styles)
+// Set the remote client background color and texture
+// Note: If no TextureID is specified, will use the default server texture
 //=================================================================================================
-uint8_t				GetTexture_BitsPerPixel	(eTexFormat eFormat);
-uint32_t			GetTexture_BytePerLine	(eTexFormat eFormat, uint32_t pixelWidth);
-uint32_t			GetTexture_BytePerImage	(eTexFormat eFormat, uint32_t pixelWidth, uint32_t pixelHeight);
+NETIMGUI_API	void				SetBackground(const ImVec4& bgColor);
+NETIMGUI_API	void				SetBackground(const ImVec4& bgColor, const ImVec4& textureTint );
+NETIMGUI_API	void				SetBackground(const ImVec4& bgColor, const ImVec4& textureTint, ImTextureID bgTextureID);
+
+//=================================================================================================
+// Control the data compression for communications between Client/Server
+//=================================================================================================
+NETIMGUI_API	void				SetCompressionMode(eCompressionMode eMode);
+NETIMGUI_API	eCompressionMode	GetCompressionMode();
+
+//=================================================================================================
+// Helper functions
+//=================================================================================================
+NETIMGUI_API	uint8_t				GetTexture_BitsPerPixel	(eTexFormat eFormat);
+NETIMGUI_API	uint32_t			GetTexture_BytePerLine	(eTexFormat eFormat, uint32_t pixelWidth);
+NETIMGUI_API	uint32_t			GetTexture_BytePerImage	(eTexFormat eFormat, uint32_t pixelWidth, uint32_t pixelHeight);
 } 
-
-#include "Private/NetImgui_WarningReenable.h"
 
 //=================================================================================================
 // Optional single include compiling option
-// Note: User that do not wish adding the few NetImgui cpp files to their project,
+// Note: User wanting to avoid adding the few NetImgui sources files to their project,
 //		 can instead define 'NETIMGUI_IMPLEMENTATION' *once* before including 'NetImgui_Api.h'
-//		 and this will load the required cpp files alongside
+//		 to pull all the needed cpp files alongside for compilation
 //=================================================================================================
-#if NETIMGUI_ENABLED && defined(NETIMGUI_IMPLEMENTATION)
+#if defined(NETIMGUI_IMPLEMENTATION)
+	#include "Private/NetImgui_Api.cpp"
+	#include "Private/NetImgui_Client.cpp"
+	#include "Private/NetImgui_CmdPackets_DrawFrame.cpp"
+	#include "Private/NetImgui_NetworkPosix.cpp"
+	#include "Private/NetImgui_NetworkUE4.cpp"
+	#include "Private/NetImgui_NetworkWin32.cpp"
+#endif
 
-#include "Private/NetImgui_Api.cpp"
-#include "Private/NetImgui_Client.cpp"
-#include "Private/NetImgui_CmdPackets_DrawFrame.cpp"
-#include "Private/NetImgui_NetworkPosix.cpp"
-#include "Private/NetImgui_NetworkUE4.cpp"
-#include "Private/NetImgui_NetworkWin32.cpp"
+#endif // NETIMGUI_ENABLED
 
+//-------------------------------------------------------------------------------------------------
+// Re-Enable the Deactivated warnings
+//-------------------------------------------------------------------------------------------------
+#if defined (__clang__)
+	#pragma clang diagnostic pop
+#elif defined(_MSC_VER) 
+	#pragma warning	(pop)
 #endif

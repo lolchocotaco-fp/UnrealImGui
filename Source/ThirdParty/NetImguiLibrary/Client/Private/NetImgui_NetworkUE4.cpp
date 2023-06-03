@@ -83,9 +83,9 @@ SocketInfo* ListenStart(uint32_t ListenPort)
 	if( pNewListenSocket )
 	{
 		SocketInfo* pListenSocketInfo	= netImguiNew<SocketInfo>(pNewListenSocket);
-	//#if NETIMGUI_FORCE_TCP_LISTEN_BINDING
+	#if NETIMGUI_FORCE_TCP_LISTEN_BINDING
 		pNewListenSocket->SetReuseAddr();
-	//#endif
+	#endif
 		pNewListenSocket->SetNonBlocking(false);
 		pNewListenSocket->SetRecvErr();
 		if (pNewListenSocket->Bind(*IpAddress))

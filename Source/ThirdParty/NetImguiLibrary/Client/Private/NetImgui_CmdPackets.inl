@@ -1,38 +1,69 @@
+#include "NetImgui_CmdPackets.h"
+
 namespace NetImgui { namespace Internal
 {
 // @sammyfreg TODO: Make Offset/Pointer test safer
 void CmdDrawFrame::ToPointers()
 {
-	if( !mpIndices.IsPointer() ) //Safer to test the first element after CmdHeader
+	if( !mpDrawGroups.IsPointer() )
 	{
-		mpVertices.ToPointer();
-		mpIndices.ToPointer();
-		mpDraws.ToPointer();
+		mpDrawGroups.ToPointer();
+		for (uint32_t i(0); i < mDrawGroupCount; ++i) {
+			mpDrawGroups[i].ToPointers();
+		}
 	}
 }
 
 void CmdDrawFrame::ToOffsets()
 {
+	if( !mpDrawGroups.IsOffset() )
+	{
+		for (uint32_t i(0); i < mDrawGroupCount; ++i) {
+			mpDrawGroups[i].ToOffsets();
+		}
+		mpDrawGroups.ToOffset();
+	}
+}
+
+void ImguiDrawGroup::ToPointers()
+{
+	if( !mpIndices.IsPointer() ) //Safer to test the first element after CmdHeader
+	{
+		mpIndices.ToPointer();
+		mpVertices.ToPointer();
+		mpDraws.ToPointer();
+	}
+}
+
+void ImguiDrawGroup::ToOffsets()
+{
 	if( !mpIndices.IsOffset() ) //Safer to test the first element after CmdHeader
 	{
-		mpVertices.ToOffset();
 		mpIndices.ToOffset();
+		mpVertices.ToOffset();
 		mpDraws.ToOffset();
 	}
 }
 
-bool CmdInput::IsKeyDown(eVirtualKeys vkKey)const
+bool CmdInput::IsKeyDown( CmdInput::NetImguiKeys netimguiKey) const
 {
-	const uint64_t key = static_cast<uint64_t>(vkKey);
-	return (mKeysDownMask[key/64] & (uint64_t(1)<<(key%64))) != 0;
+	uint32_t valIndex	= netimguiKey/64;
+	uint64_t valMask	= 0x0000000000000001ull << (netimguiKey%64);
+	return mInputDownMask[valIndex] & valMask;
 }
 
-void CmdInput::SetKeyDown(eVirtualKeys vkKey, bool isDown)
+bool CmdBackground::operator==(const CmdBackground& cmp)const
 {
-	const size_t keyEntryIndex	= static_cast<uint64_t>(vkKey) / 64;
-	const uint64_t keyBitMask	= static_cast<uint64_t>(1) << static_cast<uint64_t>(vkKey) % 64;	
-	mKeysDownMask[keyEntryIndex]= isDown ?	mKeysDownMask[keyEntryIndex] | keyBitMask : 
-											mKeysDownMask[keyEntryIndex] & ~keyBitMask;
+	bool sameValue(true);
+	for(size_t i(0); i<sizeof(CmdBackground)/8; i++){
+		sameValue &= reinterpret_cast<const uint64_t*>(this)[i] == reinterpret_cast<const uint64_t*>(&cmp)[i];
+	}
+	return sameValue;
+}
+
+bool CmdBackground::operator!=(const CmdBackground& cmp)const
+{
+	return (*this == cmp) == false;
 }
 
 }} // namespace NetImgui::Internal

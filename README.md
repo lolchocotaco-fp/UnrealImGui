@@ -9,6 +9,7 @@ Dear ImGui is an immediate-mode graphical user interface library that is very li
 Status
 ------
 - [ImGui `v1.89.6`](https://github.com/ocornut/imgui/releases/tag/v1.89.6)
+- [NetImgui `v1.9`](https://github.com/sammyfreg/netImgui/releases/tag/v1.9.0)
 - [ImPlot `v0.14+18758e23`](https://github.com/epezent/implot/tree/18758e237e8906a97ddf42de1e75793526f30ce9)
 
 Supported Unreal Engine version: `4.26`, `5.0`, `5.1`, `5.2`
