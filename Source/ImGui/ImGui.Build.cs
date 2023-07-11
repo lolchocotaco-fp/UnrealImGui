@@ -68,7 +68,7 @@ public class ImGui : ModuleRules
 				"InputCore",
 				"Slate",
 				"SlateCore",
-				"NetImguiLibrary"
+				"NetImguiLibrary",
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

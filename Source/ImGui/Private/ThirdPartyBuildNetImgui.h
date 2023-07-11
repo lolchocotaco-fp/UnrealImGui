@@ -9,7 +9,6 @@
 
 #elif !defined(NETIMGUI_ENABLED)
 	#define NETIMGUI_ENABLED 0
-
 #endif
 
 void	NetImGuiStartup();

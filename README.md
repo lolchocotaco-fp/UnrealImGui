@@ -9,8 +9,8 @@ Dear ImGui is an immediate-mode graphical user interface library that is very li
 Status
 ------
 - [ImGui `v1.89.6`](https://github.com/ocornut/imgui/releases/tag/v1.89.6)
-- [NetImgui `v1.9`](https://github.com/sammyfreg/netImgui/releases/tag/v1.9.0)
 - [ImPlot `v0.14+18758e23`](https://github.com/epezent/implot/tree/18758e237e8906a97ddf42de1e75793526f30ce9)
+- [NetImgui `v1.9`](https://github.com/sammyfreg/netImgui/releases/tag/v1.9.0)
 
 Supported Unreal Engine version: `4.26`, `5.0`, `5.1`, `5.2`
 
@@ -27,6 +27,7 @@ Also note that the NetImGui branch is not up to date with any of this fork's cha
 - Updated core source files for **Unreal Engine 5** while maintaining **Unreal Engine 4** compatibility.
 - Updated Dear ImGui to `v1.89.6`.
 - Added ImPlot `v0.14+18758e23`.
+- Added NetImgui `v1.9`.
 - `ImGui::IsKey*` now functional with all known ImGui keys.
 - Updated input handling flow to be [standard compliant](https://github.com/ocornut/imgui/issues/4921) with Dear ImGui 1.87 which makes ImGui react better at low FPS. ~~Will add `IMGUI_DISABLE_OBSOLETE_KEYIO` preprocessor once I've ripped out old style input.~~
 - Allowed `UTexture` for Texture Manager so render targets can also be rendered to quads rather than just being limited to using `UTexture2D` instances.
@@ -50,6 +51,24 @@ PrivateDefinitions.Add(string.Format("IMPLOT_API=DLLIMPORT"));
 It's pretty easy to use ImPlot, it's pretty much the same drill as using Dear ImGui with the UnrealImGui plugin. You can see documentation on how to use ImPlot here: [ImPlot](https://github.com/epezent/implot).
 
 The only thing you won't need to do is call the `ImPlot::CreateContext()` and `ImPlot::DestroyContext` routines as they're already called when ImGui's context is created within UnrealImGui's guts.
+
+## Using NetImgui
+
+Similarly like ImGui, NetImgui is built as part of the UnrealImGui plugin and no other integration steps are required.
+
+To be able to connect to the Unreal editor or application that use NetImgui, you need to run a server (netImguiServer). Please, see the [NetImgui](https://github.com/sammyfreg/netImgui) page for instructions how to get it.
+
+After launching the server for the first time, you need to add two client configurations, for ports 8889 and 8890. After that, you can either initialise connection from the server or set it to autoconnection mode. More info will be added later.
+
+Once you establish connection, you can use a top bar to switch between contexts and modes. In standalone game it should be one context and in the editor one editor context, plus one for each PIE instance.
+Please, note that all those features are experimental and might evolve. Any input is welcomed.
+
+NetImgui can be completely disabled with the following line in your `[GameName].Build.cs`:
+
+```cpp
+// Disable NetImgui
+PrivateDefinitions.Add("NETIMGUI_ENABLED=0");
+```
 
 ## Drawing a UTextureRenderTarget2D
 
@@ -105,19 +124,6 @@ void Init()
     SceneCaptureComponent2D->CaptureSource = ESceneCaptureSource::SCS_FinalToneCurveHDR;
 }
 ```
-How to Set up NetImgui
-----------------------
-
-To use NetImgui, use content of the *net_imgui* branch in place of *master*. This will be gradually merged into the *master* but until then you need to use that experimental branch.
-
-Similarly like ImGui, NetImgui is built as part of the UnrealImGui plugin and no other integration steps are required.
-
-To be able to connect to the Unreal editor or application that use NetImgui, you need to run a server (netImguiServer). Please, see the [NetImgui](https://github.com/sammyfreg/netImgui) page for instructions how to get it.
-
-After launching the server for the first time, you need to add two client configurations, for ports 8889 and 8890. After that, you can either initialise connection from the server or set it to autoconnection mode. More info will be added later.
-
-Once you establish connection, you can use a top bar to switch between contexts and modes. In standalone game it should be one context and in the editor one editor context, plus one for each PIE instance.
-Please, note that all those features are experimental and might evolve. Any input is welcomed.
 
 ### Troubleshooting
 If you're using a scene capture and your quad is not drawing at all, make sure your scene capture "Capture Source" is set to "Final Color (with tone curve) in Linear sRGB gamut" to avoid alpha being set to 0 (since there's no way to instruct ImGui to ignore alpha without modding the core UnrealImGui plugin).
@@ -192,6 +198,8 @@ See also
  - [Forked Project by WiggleWizard](https://github.com/WiggleWizard/UnrealImGui)
  - [Dear ImGui](https://github.com/ocornut/imgui)
  - [ImPlot](https://github.com/epezent/implot)
+ - [NetImgui](https://github.com/sammyfreg/netImgui)
+ - [Original UnrealNetImgui Project by sammyfreg](https://github.com/sammyfreg/UnrealNetImgui)
 
 
 License

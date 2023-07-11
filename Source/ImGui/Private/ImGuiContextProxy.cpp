@@ -153,9 +153,9 @@ void FImGuiContextProxy::DrawEarlyDebug()
 	{
 		bIsDrawEarlyDebugCalled = true;
 		if( NetImGuiCanDrawProxy(this) )
-		{			
+		{
 			SetAsCurrent();
-			
+
 			// Delegates called in order specified in FImGuiDelegates.
 			BroadcastMultiContextEarlyDebug();
 			BroadcastWorldEarlyDebug();
