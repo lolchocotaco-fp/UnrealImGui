@@ -22,8 +22,6 @@ Please note that this is a forked project from [segross/UnrealImGui](https://git
 
 Large portions of this `README.md` have been removed to keep redundant information between the base project and this fork to a minimum. If you wish to read the original `README.md`, please see [UnrealImGui `README.md`](https://github.com/segross/UnrealImGui/blob/master/README.md).
 
-Also note that the NetImGui branch is not up to date with any of this fork's changes.
-
 - Updated core source files for **Unreal Engine 5** while maintaining **Unreal Engine 4** compatibility.
 - Updated Dear ImGui to `v1.89.6`.
 - Added ImPlot `v0.14+18758e23`.
@@ -108,16 +106,9 @@ void Init()
 How to Set up NetImgui
 ----------------------
 
-To use NetImgui, use content of the *net_imgui* branch in place of *master*. This will be gradually merged into the *master* but until then you need to use that experimental branch.
+To remotely connect to your application's Imgui content using NetImgui, you need to run the **NetImgui Server application**. The appropriate version can be downloaded [here]("https://raw.githubusercontent.com/wiki/sammyfreg/netImgui/UnrealImgui/NetImguiServer_1_9.zip") and see the source project's [documentation](https://github.com/sammyfreg/netImgui) for instructions on its usage.
 
-Similarly like ImGui, NetImgui is built as part of the UnrealImGui plugin and no other integration steps are required.
-
-To be able to connect to the Unreal editor or application that use NetImgui, you need to run a server (netImguiServer). Please, see the [NetImgui](https://github.com/sammyfreg/netImgui) page for instructions how to get it.
-
-After launching the server for the first time, you need to add two client configurations, for ports 8889 and 8890. After that, you can either initialise connection from the server or set it to autoconnection mode. More info will be added later.
-
-Once you establish connection, you can use a top bar to switch between contexts and modes. In standalone game it should be one context and in the editor one editor context, plus one for each PIE instance.
-Please, note that all those features are experimental and might evolve. Any input is welcomed.
+Once you establish connection, you can use acces the 'NetImgui' entry in the 'Main Menu' top bar to switch between contexts and modes. In standalone game it should be one context and in the editor one editor context, plus one for each PIE instance. Please, note that all those features are experimental and might evolve. Any input is welcomed.
 
 ### Troubleshooting
 If you're using a scene capture and your quad is not drawing at all, make sure your scene capture "Capture Source" is set to "Final Color (with tone curve) in Linear sRGB gamut" to avoid alpha being set to 0 (since there's no way to instruct ImGui to ignore alpha without modding the core UnrealImGui plugin).
@@ -192,6 +183,7 @@ See also
  - [Forked Project by WiggleWizard](https://github.com/WiggleWizard/UnrealImGui)
  - [Dear ImGui](https://github.com/ocornut/imgui)
  - [ImPlot](https://github.com/epezent/implot)
+ - [NetImgui](https://github.com/sammyfreg/netImgui)
 
 
 License
