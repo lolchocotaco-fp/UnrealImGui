@@ -9,7 +9,7 @@ Dear ImGui is an immediate-mode graphical user interface library that is very li
 Status
 ------
 - [ImGui `v1.89.7`](https://github.com/ocornut/imgui/releases/tag/v1.89.7)
-- [ImPlot `v0.14+cc5e1daa`](https://github.com/epezent/implot/tree/cc5e1daa5c7f2335a9460ae79c829011dc5cef2d)
+- [ImPlot `v0.15`](https://github.com/epezent/implot/releases/tag/v0.15)
 - [NetImgui `v1.9`](https://github.com/sammyfreg/netImgui/releases/tag/v1.9.0)
 
 Supported Unreal Engine version: `4.26`, `5.0`, `5.1`, `5.2`
@@ -24,7 +24,7 @@ Large portions of this `README.md` have been removed to keep redundant informati
 
 - Updated core source files for **Unreal Engine 5** while maintaining **Unreal Engine 4** compatibility.
 - Updated Dear ImGui to `v1.89.7`.
-- Added ImPlot `v0.14+cc5e1daa`.
+- Added ImPlot `v0.15`.
 - Added NetImgui `v1.9`.
 - `ImGui::IsKey*` now functional with all known ImGui keys.
 - Updated input handling flow to be [standard compliant](https://github.com/ocornut/imgui/issues/4921) with Dear ImGui 1.87 which makes ImGui react better at low FPS. ~~Will add `IMGUI_DISABLE_OBSOLETE_KEYIO` preprocessor once I've ripped out old style input.~~
@@ -35,12 +35,7 @@ Large portions of this `README.md` have been removed to keep redundant informati
 
 How to Set up
 -------------
-On top of reading the base repository's [How to Set up](https://github.com/segross/UnrealImGui/blob/master/README.md#how-to-set-up) segment, you'll need to add the following line to your `[GameName].Build.cs` file otherwise you'll get linking errors:
-
-```cpp
-// Tell the compiler we want to import the ImPlot symbols when linking against ImGui plugin 
-PrivateDefinitions.Add("IMPLOT_API=DLLIMPORT");
-```
+Read the base repository's [How to Set up](https://github.com/segross/UnrealImGui/blob/master/README.md#how-to-set-up) segment.
 
 # Additional Knowledge
 
