@@ -22,8 +22,6 @@ Please note that this is a forked project from [segross/UnrealImGui](https://git
 
 Large portions of this `README.md` have been removed to keep redundant information between the base project and this fork to a minimum. If you wish to read the original `README.md`, please see [UnrealImGui `README.md`](https://github.com/segross/UnrealImGui/blob/master/README.md).
 
-Also note that the NetImGui branch is not up to date with any of this fork's changes.
-
 - Updated core source files for **Unreal Engine 5** while maintaining **Unreal Engine 4** compatibility.
 - Updated Dear ImGui to `v1.89.7`.
 - Added ImPlot `v0.14+cc5e1daa`.
