@@ -88,7 +88,7 @@ FReply UImGuiInputHandler::OnKeyDown(const FKeyEvent& KeyEvent)
 FReply UImGuiInputHandler::OnKeyUp(const FKeyEvent& KeyEvent)
 {
 	InputState->KeyUpEvents.Add(KeyEvent.GetKeyCode(), KeyEvent);
-
+	
 	if (KeyEvent.GetKey().IsGamepadKey())
 	{
 		bool bConsume = false;

@@ -7,6 +7,8 @@
 #include <GameFramework/PlayerInput.h>
 #include <UObject/UObjectIterator.h>
 
+#include "EnhancedPlayerInput.h"
+
 
 namespace
 {
@@ -49,7 +51,7 @@ namespace
 #endif
 	}
 
-	void UpdatePlayerInput(UPlayerInput* PlayerInput, const FKeyBind& KeyBind)
+	void UpdatePlayerInput(UEnhancedPlayerInput* PlayerInput, const FKeyBind& KeyBind)
 	{
 		const int32 Index = PlayerInput->DebugExecBindings.IndexOfByPredicate([&](const FKeyBind& PlayerKeyBind)
 		{
@@ -85,17 +87,14 @@ namespace DebugExecBindings
 
 		const FKeyBind KeyBind = CreateKeyBind(KeyInfo, Command);
 
-		// Update all possible default player inputs, so changes will be visible in all PIE sessions created after this point.
-		TArray<UClass*> InputClasses;
-		GetDerivedClasses(UPlayerInput::StaticClass(), InputClasses, true);
-		InputClasses.Add(UPlayerInput::StaticClass());
-		for (const UClass* InputClass : InputClasses)
+		// Update default player input, so changes will be visible in all PIE sessions created after this point.
+		if (UEnhancedPlayerInput* DefaultPlayerInput = GetMutableDefault<UEnhancedPlayerInput>())
 		{
-			UpdatePlayerInput(Cast<UPlayerInput>(InputClass->GetDefaultObject()), KeyBind);
+			UpdatePlayerInput(DefaultPlayerInput, KeyBind);
 		}
 
 		// Update all existing player inputs to see changes in running PIE session.
-		for (TObjectIterator<UPlayerInput> It; It; ++It)
+		for (TObjectIterator<UEnhancedPlayerInput> It; It; ++It)
 		{
 			UpdatePlayerInput(*It, KeyBind);
 		}

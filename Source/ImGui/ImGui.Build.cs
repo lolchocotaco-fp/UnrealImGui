@@ -34,7 +34,6 @@ public class ImGui : ModuleRules
 		PublicIncludePaths.AddRange(
 			new string[] {
 				Path.Combine(ModuleDirectory, "../ThirdParty/ImGuiLibrary/Include"),
-				Path.Combine(ModuleDirectory, "../ThirdParty/ImPlotLibrary/Public"),
 				// ... add public include paths required here ...
 			}
 			);
@@ -44,7 +43,6 @@ public class ImGui : ModuleRules
 			new string[] {
 				"ImGui/Private",
 				"ThirdParty/ImGuiLibrary/Private",
-				"ThirdParty/ImPlotLibrary/Private",
 				// ... add other private include paths required here ...
 			}
 			);
@@ -64,11 +62,12 @@ public class ImGui : ModuleRules
 			new string[]
 			{
 				"CoreUObject",
+				"EnhancedInput",
 				"Engine",
 				"InputCore",
 				"Slate",
 				"SlateCore"
-				// ... add private dependencies that you statically link with here ...
+				// ... add private dependencies that you statically link with here ...	
 			}
 			);
 
@@ -99,8 +98,5 @@ public class ImGui : ModuleRules
 #endif
 
 		PrivateDefinitions.Add(string.Format("RUNTIME_LOADER_ENABLED={0}", bEnableRuntimeLoader ? 1 : 0));
-
-		// Force ImPlot to export its methods in this module DLL so we can import them in our main project
-		PrivateDefinitions.Add("IMPLOT_API=DLLEXPORT");
 	}
 }

@@ -11,10 +11,6 @@
 
 #include <imgui.h>
 
-// MSVC warnings
-#ifdef _MSC_VER
-#pragma warning (disable: 4996) // 'This function or variable may be unsafe': strcpy, strdup, sprintf, vsnprintf, sscanf, fopen
-#endif
 
 // TODO: Refactor ImGui Context Manager, to handle different types of worlds.
 
@@ -276,9 +272,9 @@ void FImGuiContextManager::BuildFontAtlas(const TMap<FName, TSharedPtr<ImFontCon
 			// Set font name for debugging
 			if (CustomFontConfig.IsValid())
 			{
-				strncpy(CustomFontConfig->Name, TCHAR_TO_ANSI(*CustomFontName.ToString()), 40);
+				strcpy_s(CustomFontConfig->Name, 40, TCHAR_TO_ANSI(*CustomFontName.ToString()));
 			}
-
+		
 			FontAtlas.AddFont(CustomFontConfig.Get());
 		}
 

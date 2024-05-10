@@ -2,42 +2,48 @@ Unreal ImGui
 ============
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 
-Unreal ImGui is an Unreal Engine 4/5 plug-in that integrates [Dear ImGui](https://github.com/ocornut/imgui) developed by Omar Cornut.
+Unreal ImGui is an Unreal Engine 4 plug-in that integrates [Dear ImGui](https://github.com/ocornut/imgui) developed by Omar Cornut.
 
 Dear ImGui is an immediate-mode graphical user interface library that is very lightweight and easy to use. It can be very useful when creating debugging tools.
 
-Status
-------
-- [ImGui `v1.90.4`](https://github.com/ocornut/imgui/releases/tag/v1.90.4)
-- [ImPlot `v0.17+f156599f`](https://github.com/epezent/implot/tree/f156599faefe316f7dd20fe6c783bf87c8bb6fd9)
+:stop_button: Read Me First
+---------------------------
+Please note that this is a forked project from [https://github.com/segross/UnrealImGui](https://github.com/segross/UnrealImGui). I do not take credit for the work he's put into making Dear ImGui work in Unreal Engine. The work I've done to this fork is listed below.
 
-Supported Unreal Engine version: `4.26`, `4.27`, `5.0`, `5.1`, `5.2`, `5.3`
-
-Docking branch of Dear ImGui is correspondigly available on [`docking`](https://github.com/IDI-Systems/UnrealImGui/tree/docking) branch kept in sync with `master` as much as possible.
-
-_Note: Plugin has been tested and if necessary updated to compile and work with these engine versions. As long as possible we will try to maintain backward compatibility of existing features and possibly but not necessarily when adding new features. When it comes to bare-bone ImGui version it should be at least backward compatible with the engine version 4.15. For NetImgui it needs to be determined._
-
-Fork Information
-----------------
-Please note that this is a forked project from [segross/UnrealImGui](https://github.com/segross/UnrealImGui) with contributions from [benui-dev/UnrealImGui](https://github.com/benui-dev/UnrealImGui) and [WiggleWizard/UnrealImGui](https://github.com/WiggleWizard/UnrealImGui). We do not take credit for the work they put into making Dear ImGui work in Unreal Engine. The work done by this fork is listed below.
-
-Large portions of this `README.md` have been removed to keep redundant information between the base project and this fork to a minimum. If you wish to read the original `README.md`, please see [UnrealImGui `README.md`](https://github.com/segross/UnrealImGui/blob/master/README.md).
+I've removed large portions of this readme.md to keep redundant information between the base project and this fork to a minimum. If you wish to read the original readme.md, please see this link: [UnrealImGui ReadMe.md](https://github.com/segross/UnrealImGui/blob/master/README.md).
 
 Also note that the NetImGui branch is not up to date with any of this fork's changes.
 
-- Updated core source files for **Unreal Engine 5** while maintaining **Unreal Engine 4** compatibility.
-- Updated Dear ImGui to `v1.90.4`.
-- Added ImPlot `v0.17+f156599f`.
-- `ImGui::IsKey*` now functional with all known ImGui keys.
-- Updated input handling flow to be [standard compliant](https://github.com/ocornut/imgui/issues/4921) with Dear ImGui 1.87 which makes ImGui react better at low FPS. ~~Will add `IMGUI_DISABLE_OBSOLETE_KEYIO` preprocessor once I've ripped out old style input.~~
-- Allowed `UTexture` for Texture Manager so render targets can also be rendered to quads rather than just being limited to using `UTexture2D` instances.
-- Added the ability to instruct ImGui context to build custom fonts (like FontAwesome).
-- Changed Module Type to `Runtime`.
-- Replace `strcpy_s` with `strncpy`.
+Fork Additions/Fixes
+--------------------
+ - Updated core source files for Unreal Engine 5.
+ - Updated Dear ImGui to 1.90.2-docking.
+ - Added ImPlot v0.13 WIP.
+ - `ImGui::IsKey*` now functional with all known ImGui keys.
+ - Updated input handling flow to be [standard compliant](https://github.com/ocornut/imgui/issues/4921) with Dear ImGui 1.87 which makes ImGui react better at low FPS. Will add `IMGUI_DISABLE_OBSOLETE_KEYIO` preprocessor once I've ripped out old style input.
+ - Allowed `UTexture` for Texture Manager so render targets can also be rendered to quads rather than just being limited to using `UTexture2D` instances.
+ - Added the ability to instruct ImGui context to build custom fonts (like FontAwesome).
+
+Status
+------
+UnrealImGui Version: 1.22
+
+ImGui version: 1.90.2-docking
+
+ImPlot version: v0.13 WIP
+
+Supported Unreal Engine version: 5.0*
+
+\* *The original repository has support for later versions of UE4. I've not tested this fork on UE4 variants, I only know it works for UE5 currently.*
 
 How to Set up
 -------------
-Read the base repository's [How to Set up](https://github.com/segross/UnrealImGui/blob/master/README.md#how-to-set-up) segment.
+On top of reading the base repository's [How to Set up](https://github.com/segross/UnrealImGui/blob/master/README.md#how-to-set-up) segment, you'll need to add the following line to your `[GameName].Build.cs` file otherwise you'll get linking errors:
+
+```cpp
+// Tell the compiler we want to import the ImPlot symbols when linking against ImGui plugin 
+PrivateDefinitions.Add(string.Format("IMPLOT_API=DLLIMPORT"));
+```
 
 # Additional Knowledge
 
@@ -171,8 +177,6 @@ ImGui::TextUnformatted(TCHAR_TO_UTF8(*Str));
 See also
 --------
  - [Original Project by segross](https://github.com/segross/UnrealImGui)
- - [Forked Project by benui-dev](https://github.com/benui-dev/UnrealImGui)
- - [Forked Project by WiggleWizard](https://github.com/WiggleWizard/UnrealImGui)
  - [Dear ImGui](https://github.com/ocornut/imgui)
  - [ImPlot](https://github.com/epezent/implot)
 

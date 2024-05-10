@@ -112,9 +112,6 @@ void SImGuiWidget::Construct(const FArguments& InArgs)
 	// Initialize state.
 	UpdateVisibility();
 	UpdateMouseCursor();
-	
-	// Support Slate Global Invalidation.
-	ForceVolatile(true);
 
 	ChildSlot
 	[
@@ -654,11 +651,15 @@ int32 SImGuiWidget::OnPaint(const FPaintArgs& Args, const FGeometry& AllottedGeo
 			DrawList.CopyVertexData(VertexBuffer, ImGuiToScreen);
 #endif // ENGINE_COMPATIBILITY_LEGACY_CLIPPING_API
 
+			int IndexBufferOffset = 0;
 			for (int CommandNb = 0; CommandNb < DrawList.NumCommands(); CommandNb++)
 			{
 				const auto& DrawCommand = DrawList.GetCommand(CommandNb, ImGuiToScreen);
 
-				DrawList.CopyIndexData(IndexBuffer, DrawCommand.IndexOffset, DrawCommand.NumElements);
+				DrawList.CopyIndexData(IndexBuffer, IndexBufferOffset, DrawCommand.NumElements);
+
+				// Advance offset by number of copied elements to position it for the next command.
+				IndexBufferOffset += DrawCommand.NumElements;
 
 				// Get texture resource handle for this draw command (null index will be also mapped to a valid texture).
 				const FSlateResourceHandle& Handle = ModuleManager->GetTextureManager().GetTextureHandle(DrawCommand.TextureId);

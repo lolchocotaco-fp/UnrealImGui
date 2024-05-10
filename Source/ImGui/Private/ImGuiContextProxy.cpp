@@ -8,9 +8,6 @@
 #include "Utilities/Arrays.h"
 #include "VersionCompatibility.h"
 
-// Include ImPlot here so we can call `ImPlot::CreateContext`
-#include <implot.h>
-
 #include <GenericPlatform/GenericPlatformFile.h>
 #include <Misc/Paths.h>
 
@@ -84,9 +81,6 @@ FImGuiContextProxy::FImGuiContextProxy(const FString& InName, int32 InContextInd
 	// Create context.
 	Context = ImGui::CreateContext(InFontAtlas);
 
-	// Create ImPlot context
-	ImPlot::CreateContext();
-
 	// Set this context in ImGui for initialization (any allocations will be tracked in this context).
 	SetAsCurrent();
 
@@ -121,9 +115,6 @@ FImGuiContextProxy::~FImGuiContextProxy()
 
 		// Save context data and destroy.
 		ImGui::DestroyContext(Context);
-
-		// Destroy ImPlot context
-		ImPlot::DestroyContext();
 	}
 }
 

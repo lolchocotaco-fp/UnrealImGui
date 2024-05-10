@@ -69,7 +69,7 @@ enum class EImGuiCanvasSizeType : uint8
 };
 
 /**
- * Struct with information how to calculate canvas size.
+ * Struct with information how to calculate canvas size. 
  */
 USTRUCT()
 struct FImGuiCanvasSizeInfo
@@ -296,8 +296,6 @@ private:
 
 #if WITH_EDITOR
 	void OnPropertyChanged(class UObject* ObjectBeingModified, struct FPropertyChangedEvent& PropertyChangedEvent);
-
-	FDelegateHandle EditorInitDelegateHandle;
 #endif // WITH_EDITOR
 
 	FImGuiModuleProperties& Properties;
